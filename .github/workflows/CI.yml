@@ -11,12 +11,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env:
-      SECRET: ${{ secrets.DOCKER_AUTH }}
     steps:
     - uses: actions/checkout@v3
+    - name: login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: densukest
+          password: ${{ secrets.DOCKER_AUTH }}
     - name: Build the Docker image
       run: |
-        echo "${SECRET}" | docker login -u densukest --password-stdin
         docker buildx create --use mybuilder
         docker buildx build -t densukest/ubuntu-it-soft:v1 --push src
