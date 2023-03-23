@@ -1,0 +1,18 @@
+#!/bin/bash
+
+cd $(dirname "$0")
+
+if [ ! -f ./docker-compose.yml ]; then
+    echo "error: file 'docker-compose.yml' not found." >/dev/stderr
+    exit 1
+fi
+
+docker inspect --type=volume ubuntu-home >&/dev/null
+if [ ! $? = 0 ]; then
+    echo "Home volume not found, please run linux-setup before me." > /dev/stderr
+    exit 1
+fi
+
+echo "starting..."
+docker compose up -d
+echo "OK"

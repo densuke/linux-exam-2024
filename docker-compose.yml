@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  linux:
+    image: densukest/ubuntu-it-soft:v1
+    privileged: true
+    ports:
+      - 2022:22
+      - 8080:80
+      - 3306:3306
+    volumes:
+      - ubuntu-home:/home
+
+volumes:
+  ubuntu-home:
+    external: true
