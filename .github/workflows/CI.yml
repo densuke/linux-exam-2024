@@ -11,8 +11,12 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      SECRET: ${{ secrets.DOCKER_AUTH }}
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: |
+        docker login --username densuke-st --password "${{ secrets.DOCKER_AUTH }}" 
+        docker buildx create --use mybuilder
+        docker builxd build -t densukest/ubuntu-it-soft:v1 --push src
