@@ -17,6 +17,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
-        docker login -u densuke-st -p "${SECRET}" 
+        echo "${SECRET}" | docker login -u densukest --password-stdin
         docker buildx create --use mybuilder
         docker buildx build -t densukest/ubuntu-it-soft:v1 --push src
