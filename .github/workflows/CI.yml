@@ -21,4 +21,4 @@ jobs:
     - name: Build the Docker image
       run: |
         docker buildx create --use --name mybuilder
-        docker buildx build -t densukest/ubuntu-it-soft:v1 --push src
+        docker buildx build -t densukest/ubuntu-it-soft:v1 --platform=linux/amd64,linux/arm64 --push src
