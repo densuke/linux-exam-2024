@@ -27,7 +27,6 @@ jobs:
         docker image save densukest/ubuntu-it-soft:v1 | gzip > /tmp/image.tar.gz
     - name: Upload artifact
       uses: actions/upload-artifact@v2
-      if: !failure()
       with:
         name: image
         path: /tmp/image.tar.gz
