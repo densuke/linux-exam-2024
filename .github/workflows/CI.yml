@@ -32,7 +32,8 @@ jobs:
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
-        bash -xe ./test/conn
+        install -m 0755 ./test/conn /tmp/conn
+        bash -xe /tmp/conn
     - name: Remove test container
       run: |
         docker stop test
