@@ -32,7 +32,7 @@ jobs:
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
-        apt-get update; apt-get install -y sshpass
+        sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
     - name: Remove test container
       run: |
