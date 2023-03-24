@@ -34,10 +34,3 @@ jobs:
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
-    - name: Remove test container
-      run: |
-        docker stop test
-        docker rm test
-    - name: Push image
-      run: |
-        docker push densukest/ubuntu-it-soft:v1
