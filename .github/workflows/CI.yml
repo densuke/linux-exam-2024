@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main", "ci" ]
+    branches: [ "ci" ]
   pull_request:
     branches: [ "main" ]
   schedule:
@@ -28,5 +28,9 @@ jobs:
         password: ${{ secrets.DOCKER_AUTH }}
     - name: Build the Docker image
       run: |
-        docker buildx create --use --name mybuilder
-        docker buildx build -t densukest/ubuntu-it-soft:v1 --platform=linux/amd64,linux/arm64 --push src
+        docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+    - name: Test connection
+      run: |
+        docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
+        sudo apt-get update; sudo apt-get install -y sshpass
+        sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a

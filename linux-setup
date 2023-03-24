@@ -7,7 +7,7 @@ ${CMD} inspect --type=volume ${VOL} >& /dev/null
 
 if [ ! $? = 0 ]; then
     echo "create volume ${VOL}"
-    ${CMD}r volume create "${VOL}"
+    ${CMD} volume create "${VOL}"
 fi
 
 ${CMD} compose create --pull always

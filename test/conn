@@ -1,0 +1,20 @@
+#!/bin/bash
+
+SSH_USER=linux
+SSH_PASS=penguin
+SSH_HOST=127.0.0.1
+SSH_PORT=2022
+REMOTE_CMD="uname -a"
+
+if [ -n "${PASS}" ]; then
+	cat <<< "${PASS}"
+	exit 0
+fi
+
+export PASS="${SSH_PASS}"
+export SSH_ASKPASS=$0
+export DISPLAY=dummy:0.0
+
+exec setsid ssh -p ${SSH_PORT} -o UserKnownHostsFile=/dev/null \
+	-o StrictHostKeyChecking=false \
+	${SSH_USER}@${SSH_HOST} ${REMOTE_CMD}
