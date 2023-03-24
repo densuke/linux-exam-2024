@@ -2,14 +2,18 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "ci", "main" ]
+    branches: [ "main" ]
   pull_request:
-      branches: [ "main" ]
+    branches: [ "main" ]
   schedule:
-    - cron: "30 11 * * *"
+    - cron: "0 12 * * 0"
+  workflow_run:
+      workflows: ["Test"]
+      types: [completed]
+  workflow_dispatch:
 
 jobs:
-  Build:
+  build_job:
     runs-on: ubuntu-latest
     name: Build on ${{ matrix.arch }}
     strategy:
@@ -21,23 +25,19 @@ jobs:
           distro: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: login to docker hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_AUTH }}
     - name: Build the Docker image
       run: |
         docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
-  Test:
-    needs: Build
-    runs-on: ubuntu-latest
-    name: Build on ${{ matrix.arch }}
-    strategy:
-      matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
-    steps:
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+    - name: Push image
+      run: |
+        docker push densukest/ubuntu-it-soft:v1
