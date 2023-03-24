@@ -4,12 +4,12 @@ on:
   push:
     branches: [ "ci" ]
   pull_request:
-      branches: [ "main" ]
+    branches: [ "main" ]
   schedule:
-    - cron: "30 11 * * *"
+    - cron: "0 12 * * 0"
 
 jobs:
-  Build:
+  build_job:
     runs-on: ubuntu-latest
     name: Build on ${{ matrix.arch }}
     strategy:
@@ -21,35 +21,24 @@ jobs:
           distro: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: login to docker hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_AUTH }}
     - name: Build the Docker image
       run: |
         docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
-        mkdir dist
-        docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/image.tar.gz
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: image-${{ matrix.arch }}
-        path: dist/
-  Test:
-    needs: Build
-    runs-on: ubuntu-latest
-    name: Build on ${{ matrix.arch }}
-    strategy:
-      matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: image-${{ matrix.arch }}
     - name: Test connection
       run: |
         zcat dist/image.tar.gz | docker import densukest/ubuntu-it-soft:v1
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+    - name: Remove test container
+      run: |
+        docker stop test
+        docker rm test
+    - name: Push image
+      run: |
+        docker push densukest/ubuntu-it-soft:v1
