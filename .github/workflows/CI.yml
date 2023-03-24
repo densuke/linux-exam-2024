@@ -24,6 +24,13 @@ jobs:
     - name: Build the Docker image
       run: |
         docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+        docker image save densukest/ubuntu-it-soft:v1 | gzip > /tmp/image.tar.gz
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      if: !failure()
+      with:
+        name: image
+        path: /tmp/image.tar.gz
   Test:
     needs: Build
     runs-on: ubuntu-latest
@@ -36,8 +43,13 @@ jobs:
         - arch: aarch64
           distro: ubuntu-latest
     steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: image
     - name: Test connection
       run: |
+        zcat /tmp/image.tar.gz | docker import densukest/ubuntu-it-soft:v1
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
