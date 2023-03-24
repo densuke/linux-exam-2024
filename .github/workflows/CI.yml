@@ -29,7 +29,7 @@ jobs:
         password: ${{ secrets.DOCKER_AUTH }}
     - name: Build the Docker image
       run: |
-        docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
