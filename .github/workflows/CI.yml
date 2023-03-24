@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "ci", "main" ]
+    branches: [ "ci" ]
   pull_request:
       branches: [ "main" ]
   schedule:
@@ -27,10 +27,10 @@ jobs:
         mkdir dist
         docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/image.tar.gz
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: image-${{ matrix.arch }}
-        path: dist/image.tar.gz
+        path: dist/
   Test:
     needs: Build
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
           distro: ubuntu-latest
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: image-${{ matrix.arch }}
     - name: Test connection
