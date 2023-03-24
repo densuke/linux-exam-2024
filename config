@@ -1,0 +1,10 @@
+VOL=ubuntu-home
+IMAGE=densukest/ubuntu-it-soft:v1
+NAME=ubuntu
+CMD=docker
+
+if [ -f /etc/wsl.conf ]; then
+    DOCKERW="/mnt/host/c/Program Files/Docker/Docker"
+    PATH="${PATH}:${DOCKERW}"
+    CMD=docker.exe
+fi

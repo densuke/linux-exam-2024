@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cd $(dirname $0)
+. config
+
 while getopts a OPT; do
     case $OPT in
         a)
@@ -18,13 +21,13 @@ if [ ! "x$ALL" = "x" ]; then
 fi
 
 # remove container
-docker compose down
+${CMD} compose down
 if [ ! "x$ALL" = "x" ]; then
     for cmd in rm create; do
-        docker volume ${cmd} ubuntu-home
+        ${CMD} volume ${cmd} ubuntu-home
     done
 fi
 
 echo "re-pulling image and create container"
-docker compose create --pull always
+${CMD} compose create --pull always
 

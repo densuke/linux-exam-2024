@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd $(dirname $0)
+. config
+
+${CMD} inspect --type=volume ${VOL} >& /dev/null
+
+if [ ! $? = 0 ]; then
+    echo "create volume ${VOL}"
+    ${CMD}r volume create "${VOL}"
+fi
+
+${CMD} compose create --pull always
+echo "OK: use command 'docker compose up -d' or script linux-start"
+

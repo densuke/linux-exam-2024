@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd $(dirname "$0")
+cd $(dirname $0)
+. config
 
 if [ ! -f ./docker-compose.yml ]; then
     echo "file ./docker-compose.yml not found" > /dev/stderr
@@ -8,4 +9,4 @@ if [ ! -f ./docker-compose.yml ]; then
 fi
 
 echo "stopping..."
-docker compose stop
+${CMD} compose stop
