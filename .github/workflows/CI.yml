@@ -11,15 +11,11 @@ on:
 
 jobs:
   build_job:
-    runs-on: ubuntu-latest
     name: Build on ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
+        runner: [ubuntu-latest, self-hosted]
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
@@ -35,16 +31,11 @@ jobs:
         name: image-${{ matrix.arch }}
         path: dist/*
   test:
-    runs-on: ubuntu-latest
     name: Test on ${{ matrix.arch }}
-    needs: build_job
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
+        runner: [ubuntu-latest, self-hosted]
     steps:
     - name: download image
       uses: actions/download-artifact@v3
@@ -63,14 +54,10 @@ jobs:
   deploy:
     needs: test
     if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
-    runs-on: ubuntu-latest
+        runner: [ubuntu-latest, self-hosted]
     steps:
       - name: download image
         uses: actions/download-artifact@v3
