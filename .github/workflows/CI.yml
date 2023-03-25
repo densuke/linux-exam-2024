@@ -40,7 +40,7 @@ jobs:
     - name: export image
       run: |
         mkdir dist
-        docker image save | gzip > dist/test.tar.gz
+        docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/test.tar.gz
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
