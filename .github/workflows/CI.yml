@@ -11,7 +11,7 @@ on:
 
 jobs:
   build_job:
-    name: Build on ${{ matrix.arch }}
+    name: Build on ${{ matrix.runner }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -28,11 +28,11 @@ jobs:
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: image-${{ matrix.arch }}
+        name: image-${{ matrix.runner }}
         path: dist/*
   test:
     needs: build_job
-    name: Test on ${{ matrix.arch }}
+    name: Test on ${{ matrix.runner }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -41,7 +41,7 @@ jobs:
     - name: download image
       uses: actions/download-artifact@v3
       with:
-        name: image-${{ matrix.arch }}
+        name: image-${{ matrix.runner }}
         path: dist
     - name: import image
       run: |
