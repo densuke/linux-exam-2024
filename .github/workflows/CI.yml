@@ -28,10 +28,16 @@ jobs:
         mkdir dist
         docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/test.tar.gz
     - name: upload artifact
+      if: ${{ matrix.runner != 'self-hosted' }}
       uses: actions/upload-artifact@v3
       with:
         name: image-${{ matrix.runner }}
         path: dist/*
+    - name: divert artifact
+      if: ${{ matrix.runner == 'self-hosted' }}
+      run: |
+        rm -fr /tmp/dist
+        mv dist /tmp
   test:
     needs: build_job
     name: Test on ${{ matrix.runner }}
@@ -40,11 +46,16 @@ jobs:
       matrix:
         runner: [ubuntu-latest, self-hosted]
     steps:
-    - name: download image
+    - name: restore image(dowload)
+      if: ${{ matrix.runner != 'self-hosted' }}
       uses: actions/download-artifact@v3
       with:
         name: image-${{ matrix.runner }}
         path: dist
+    - name: restore artifact
+      if: ${{ matrix.runner == 'self-hosted' }}
+      run: |
+        cp -r /tmp/dist .
     - name: import image
       run: |
         find dist -ls
@@ -65,20 +76,25 @@ jobs:
       matrix:
         runner: [ubuntu-latest, self-hosted]
     steps:
-      - name: download image
-        uses: actions/download-artifact@v3
-        with:
-          name: image-${{ matrix.arch }}
-          path: dist
-      - name: import image
-        run: |
-          find dist -ls
-          docker image load --input dist/test.tar.gz
-      - name: login to docker hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_AUTH }}
-      - name: upload image
-        run: |
-          docker push densukest/ubuntu-it-soft:v1
+    - name: restore image(dowload)
+      if: ${{ matrix.runner != 'self-hosted' }}
+      uses: actions/download-artifact@v3
+      with:
+        name: image-${{ matrix.runner }}
+        path: dist
+    - name: restore artifact
+      if: ${{ matrix.runner == 'self-hosted' }}
+      run: |
+        mv /tmp/dist .
+    - name: import image
+      run: |
+        find dist -ls
+        docker image load --input dist/test.tar.gz
+    - name: login to docker hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_AUTH }}
+    - name: upload image
+      run: |
+        docker push densukest/ubuntu-it-soft:v1
