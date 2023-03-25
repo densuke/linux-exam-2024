@@ -52,7 +52,7 @@ jobs:
         name: image-${{ matrix.arch }}
         path: dist
     - name: check
-      runs: |
+      run: |
         find dist
     - name: Test connection
       run: |
