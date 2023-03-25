@@ -21,6 +21,9 @@ jobs:
         - arch: aarch64
           distro: ubuntu-latest
     steps:
+    - name: display current action type
+      run: |
+        echo branch: ${{ github.ref }} / event: ${{ github.event_name }}
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
