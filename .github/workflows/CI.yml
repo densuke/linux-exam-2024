@@ -31,6 +31,7 @@ jobs:
         name: image-${{ matrix.arch }}
         path: dist/*
   test:
+    needs: build_job
     name: Test on ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     strategy:
