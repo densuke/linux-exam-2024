@@ -51,7 +51,7 @@ jobs:
       run: |
         NAME="test-${RANDOM}"
         docker run -P --name "${NAME}" -d --privileged  densukest/ubuntu-it-soft:v1
-        SSHPORT=$(docker container ps -f "status=running,name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
+        SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
   deploy:
