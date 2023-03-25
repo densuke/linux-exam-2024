@@ -20,7 +20,8 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
-        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+        [[ ${{ github.ref  }} =~ "/main$" ]] && CACHE="--no-cache"
+        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 "${CACHE}" --build-arg PASSWORD=penguin src
     - name: export image
       run: |
         mkdir dist
@@ -50,10 +51,11 @@ jobs:
     - name: Test connection
       run: |
         NAME="test-${RANDOM}"
-        docker run -P --name "${NAME}" -d --privileged  densukest/ubuntu-it-soft:v1
+        docker run -P --name "${NAME}" -d --rm --privileged  densukest/ubuntu-it-soft:v1
         SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+        docker stop "${NAME}"
   deploy:
     needs: test
     if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
