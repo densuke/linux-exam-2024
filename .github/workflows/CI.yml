@@ -85,7 +85,7 @@ jobs:
     - name: restore artifact
       if: ${{ matrix.runner == 'self-hosted' }}
       run: |
-        mv /tmp/dist .
+        cp -vr /tmp/dist .
     - name: import image
       run: |
         find dist -ls
@@ -98,3 +98,7 @@ jobs:
     - name: upload image
       run: |
         docker push densukest/ubuntu-it-soft:v1
+    - name: cleanup
+      if: ${{ matrix.runner == 'self-hosted' }}
+      run: |
+        rm -fr /tmp/dist
