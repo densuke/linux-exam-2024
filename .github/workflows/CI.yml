@@ -49,9 +49,10 @@ jobs:
         docker image load --input dist/test.tar.gz
     - name: Test connection
       run: |
-        docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
+        docker run -P --name test -d --privileged  densukest/ubuntu-it-soft:v1
+        SSHPORT=$(docker container ps test | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
         sudo apt-get update; sudo apt-get install -y sshpass
-        sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+        sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
   deploy:
     needs: test
     if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
