@@ -28,13 +28,13 @@ jobs:
         mkdir dist
         docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/test.tar.gz
     - name: upload artifact
-      if: ${{ matrix.runner }} != 'self-hosted'
+      if: ${{ matrix.runner != 'self-hosted' }}
       uses: actions/upload-artifact@v3
       with:
         name: image-${{ matrix.runner }}
         path: dist/*
     - name: divert artifact
-      if: ${{ matrix.runner }} == 'self-hosted'
+      if: ${{ matrix.runner == 'self-hosted' }}
       run: |
         rm -fr /tmp/dist
         mv dist /tmp
@@ -47,13 +47,13 @@ jobs:
         runner: [ubuntu-latest, self-hosted]
     steps:
     - name: restore image(dowload)
-      if: ${{ matrix.runner }} != 'self-hosted'
+      if: ${{ matrix.runner != 'self-hosted' }}
       uses: actions/download-artifact@v3
       with:
         name: image-${{ matrix.runner }}
         path: dist
     - name: restore artifact
-      if: ${{ matrix.runner }} == 'self-hosted'
+      if: ${{ matrix.runner == 'self-hosted' }}
       run: |
         cp -r /tmp/dist .
     - name: import image
@@ -77,13 +77,13 @@ jobs:
         runner: [ubuntu-latest, self-hosted]
     steps:
     - name: restore image(dowload)
-      if: ${{ matrix.runner }} != 'self-hosted'
+      if: ${{ matrix.runner != 'self-hosted' }}
       uses: actions/download-artifact@v3
       with:
         name: image-${{ matrix.runner }}
         path: dist
     - name: restore artifact
-      if: ${{ matrix.runner }} == 'self-hosted'
+      if: ${{ matrix.runner == 'self-hosted' }}
       run: |
         mv /tmp/dist .
     - name: import image
