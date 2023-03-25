@@ -2,11 +2,12 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "ci" ]
+    branches: [ "ci", "main" ]
   pull_request:
     branches: [ "main" ]
   schedule:
     - cron: "0 12 * * 0"
+  workflow_dispatch:
 
 jobs:
   build_job:
@@ -21,16 +22,63 @@ jobs:
           distro: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: login to docker hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_AUTH }}
     - name: Build the Docker image
       run: |
-        docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+    - name: export image
+      run: |
+        mkdir dist
+        docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/test.tar.gz
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: image-${{ matrix.arch }}
+        path: dist/*
+  test:
+    runs-on: ubuntu-latest
+    name: Test on ${{ matrix.arch }}
+    needs: build_job
+    strategy:
+      matrix:
+        include:
+        - arch: amd64
+          distro: ubuntu-latest
+        - arch: aarch64
+          distro: ubuntu-latest
+    steps:
+    - name: download image
+      uses: actions/download-artifact@v3
+      with:
+        name: image-${{ matrix.arch }}
+        path: dist
+    - name: import image
+      run: |
+        find dist -ls
+        docker image load --input dist/test.tar.gz
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+  deploy:
+    needs: test
+    if: github.ref  == 'main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: download image
+        uses: actions/download-artifact@v3
+        with:
+          name: image-${{ matrix.arch }}
+          path: dist
+      - name: import image
+        run: |
+          find dist -ls
+          docker image load --input dist/test.tar.gz
+      - name: login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_AUTH }}
+      - name: upload image
+        run: |
+          docker push densukest/ubuntu-it-soft:v1
