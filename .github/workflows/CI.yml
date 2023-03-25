@@ -11,20 +11,18 @@ on:
 
 jobs:
   build_job:
-    runs-on: ubuntu-latest
-    name: Build on ${{ matrix.arch }}
+    name: Build on ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
+        runner: [ubuntu-latest, self-hosted]
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
-        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+        BUILD_ARG="--build-arg PASSWORD=penguin"
+        grep -q '/main$' <<< "${{ github.ref }}" && BUILD_ARG="${BUILD_ARG} --no-cache"
+        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
     - name: export image
       run: |
         mkdir dist
@@ -32,24 +30,20 @@ jobs:
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: image-${{ matrix.arch }}
+        name: image-${{ matrix.runner }}
         path: dist/*
   test:
-    runs-on: ubuntu-latest
-    name: Test on ${{ matrix.arch }}
     needs: build_job
+    name: Test on ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
+        runner: [ubuntu-latest, self-hosted]
     steps:
     - name: download image
       uses: actions/download-artifact@v3
       with:
-        name: image-${{ matrix.arch }}
+        name: image-${{ matrix.runner }}
         path: dist
     - name: import image
       run: |
@@ -57,20 +51,19 @@ jobs:
         docker image load --input dist/test.tar.gz
     - name: Test connection
       run: |
-        docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
+        NAME="test-${RANDOM}"
+        docker run -P --name "${NAME}" -d --rm --privileged  densukest/ubuntu-it-soft:v1
+        SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
         sudo apt-get update; sudo apt-get install -y sshpass
-        sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+        sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+        docker stop "${NAME}"
   deploy:
     needs: test
     if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include:
-        - arch: amd64
-          distro: ubuntu-latest
-        - arch: aarch64
-          distro: ubuntu-latest
-    runs-on: ubuntu-latest
+        runner: [ubuntu-latest, self-hosted]
     steps:
       - name: download image
         uses: actions/download-artifact@v3
