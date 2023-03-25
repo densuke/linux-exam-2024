@@ -42,12 +42,12 @@ jobs:
         mkdir dist
         docker image save | gzip > dist/test.tar.gz
     - name: upload artifact
-      uses: actions/upload-artifacts@v3
+      uses: actions/upload-artifact@v3
       with:
         name: image-${{ matrix.arch }}
         path: dist/*
     - name: import image
-      uses: actions/download-artifacts@v3
+      uses: actions/download-artifact@v3
       with:
         name: image-${{ matrix.arch }}
         path: dist
