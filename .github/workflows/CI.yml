@@ -62,7 +62,7 @@ jobs:
         sshpass -p penguin ssh -p 2022 -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
   deploy:
     needs: test
-    if: github.ref  == 'main' && github.event_name != 'pull_request'
+    if: ${{ github.ref  == 'main' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - name: download image
