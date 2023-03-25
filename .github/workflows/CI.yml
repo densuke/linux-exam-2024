@@ -21,13 +21,6 @@ jobs:
         - arch: aarch64
           distro: ubuntu-latest
     steps:
-    - name: Remove old artifacts
-      uses: c-hive/gha-remove-artifacts@v1
-      with:
-        age: '7 days' # '<number> <unit>', e.g. 5 days, 2 years, 90 seconds, parsed by Moment.js
-        # Optional inputs
-        # skip-tags: true
-        # skip-recent: 5
     - uses: actions/checkout@v3
     - name: login to docker hub
       uses: docker/login-action@v2
