@@ -34,7 +34,7 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_AUTH }}
-    - name: rebuild as main-use
+    - name: rebuild and push
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
