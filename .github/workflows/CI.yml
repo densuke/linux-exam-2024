@@ -37,6 +37,23 @@ jobs:
     - name: Build the Docker image
       run: |
         DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 --build-arg PASSWORD=penguin src
+    - name: export image
+      run: |
+        mkdir dist
+        docker image save | gzip > dist/test.tar.gz
+    - name: upload artifact
+      uses: actions/upload-artifacts@v3
+      with:
+        name: image-${{ matrix.arch }}
+        path: dist/*
+    - name: import image
+      uses: actions/download-artifacts@v3
+      with:
+        name: image-${{ matrix.arch }}
+        path: dist
+    - name: check
+      runs: |
+        find dist
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
