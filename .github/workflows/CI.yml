@@ -63,6 +63,13 @@ jobs:
   deploy:
     needs: test
     if: ${{ github.ref  == 'main' && github.event_name != 'pull_request' }}
+    strategy:
+      matrix:
+        include:
+        - arch: amd64
+          distro: ubuntu-latest
+        - arch: aarch64
+          distro: ubuntu-latest
     runs-on: ubuntu-latest
     steps:
       - name: download image
