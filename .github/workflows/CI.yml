@@ -59,7 +59,7 @@ jobs:
     - name: import image
       run: |
         find dist -ls
-        zcat dist/test.tar.gz | docker image import - densukest/ubuntu-it-soft:v1
+        docker image load --input dist/test.tar.gz
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
