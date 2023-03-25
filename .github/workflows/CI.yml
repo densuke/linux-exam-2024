@@ -46,14 +46,27 @@ jobs:
       with:
         name: image-${{ matrix.arch }}
         path: dist/*
-    - name: import image
+  test:
+    runs-on: ubuntu-latest
+    name: Test on ${{ matrix.arch }}
+    needs: build_job
+    strategy:
+      matrix:
+        include:
+        - arch: amd64
+          distro: ubuntu-latest
+        - arch: aarch64
+          distro: ubuntu-latest
+    steps:
+    - name: download image
       uses: actions/download-artifact@v3
       with:
         name: image-${{ matrix.arch }}
         path: dist
-    - name: check
+    - name: import image
       run: |
-        find dist
+        find dist -ls
+        zcat dist/test.tar.gz | docker import densukest/ubuntu-it-soft:v1
     - name: Test connection
       run: |
         docker run -p 2022:22 --name test -d --privileged  densukest/ubuntu-it-soft:v1
