@@ -38,5 +38,5 @@ jobs:
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
-        docker builx create --use builder
+        docker buildx create --use builder
         docker buildx build --platform=linux/amd64,linux/arm64 --push -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
