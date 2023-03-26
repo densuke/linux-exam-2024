@@ -11,55 +11,15 @@ on:
 
 jobs:
   build_job:
-    name: Build on ${{ matrix.runner }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        runner: [ubuntu-latest, self-hosted]
+    name: Build
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
         grep -q '/main$' <<< "${{ github.ref }}" && BUILD_ARG="${BUILD_ARG} --no-cache"
-        DOCKER_BUILDKIT=1 docker build -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
-    - name: export image
-      run: |
-        mkdir dist
-        docker image save densukest/ubuntu-it-soft:v1 | gzip > dist/test.tar.gz
-    - name: upload artifact
-      if: ${{ matrix.runner != 'self-hosted' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: image-${{ matrix.runner }}
-        path: dist/*
-    - name: divert artifact
-      if: ${{ matrix.runner == 'self-hosted' }}
-      run: |
-        rm -fr /tmp/dist
-        mv dist /tmp
-  test:
-    needs: build_job
-    name: Test on ${{ matrix.runner }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        runner: [ubuntu-latest, self-hosted]
-    steps:
-    - name: restore image(dowload)
-      if: ${{ matrix.runner != 'self-hosted' }}
-      uses: actions/download-artifact@v3
-      with:
-        name: image-${{ matrix.runner }}
-        path: dist
-    - name: restore artifact
-      if: ${{ matrix.runner == 'self-hosted' }}
-      run: |
-        cp -r /tmp/dist .
-    - name: import image
-      run: |
-        find dist -ls
-        docker image load --input dist/test.tar.gz
+        docker buildx build --platform=linux/amd64 --load -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
     - name: Test connection
       run: |
         NAME="test-${RANDOM}"
@@ -68,37 +28,14 @@ jobs:
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
         docker stop "${NAME}"
-  deploy:
-    needs: test
-    if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        runner: [ubuntu-latest, self-hosted]
-    steps:
-    - name: restore image(dowload)
-      if: ${{ matrix.runner != 'self-hosted' }}
-      uses: actions/download-artifact@v3
-      with:
-        name: image-${{ matrix.runner }}
-        path: dist
-    - name: restore artifact
-      if: ${{ matrix.runner == 'self-hosted' }}
-      run: |
-        cp -vr /tmp/dist .
-    - name: import image
-      run: |
-        find dist -ls
-        docker image load --input dist/test.tar.gz
     - name: login to docker hub
+      if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_AUTH }}
-    - name: upload image
+    - name: rebuild and push
+      if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
       run: |
-        docker push densukest/ubuntu-it-soft:v1
-    - name: cleanup
-      if: ${{ matrix.runner == 'self-hosted' }}
-      run: |
-        rm -fr /tmp/dist
+        BUILD_ARG="--build-arg PASSWORD=penguin"
+        docker buildx build --platform=linux/amd64,linux/arm64 --push -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
