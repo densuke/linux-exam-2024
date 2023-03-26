@@ -13,10 +13,13 @@ jobs:
   build_job:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      TESTIMAGE: test-${{ github.run_id }}-${{ github.run_number }}
+    # env:
+    #   TESTIMAGE: test-${{ github.run_id }}-${{ github.run_number }}
     steps:
     - uses: actions/checkout@v3
+    - name: Set random image name
+      run: |
+        echo "TESTIMAGE=testimage-${RANDOM}:${RANDOM}" > $GITHUB_ENV
     - name: Build the Docker image
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
