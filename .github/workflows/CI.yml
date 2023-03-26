@@ -19,6 +19,7 @@ jobs:
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
         grep -q '/main$' <<< "${{ github.ref }}" && BUILD_ARG="${BUILD_ARG} --no-cache"
+        docker buildx create --use --name builder
         docker buildx build --platform=linux/amd64 --load -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
     - name: Test connection
       run: |
@@ -38,5 +39,4 @@ jobs:
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
-        docker buildx create --use builder
         docker buildx build --platform=linux/amd64,linux/arm64 --push -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
