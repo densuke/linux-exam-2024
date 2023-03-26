@@ -33,7 +33,8 @@ jobs:
       run: |
         NAME="test-${RANDOM}"
         docker run -P --name "${NAME}" -d --rm --privileged  densukest/ubuntu-it-soft:v1
-        docker exec "${NAME}" podman run --rm hello-world | grep -qi hello
+        SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
+        sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 podman run hello-world | grep -qi hello
         docker stop "${NAME}"
     - name: login to docker hub
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
