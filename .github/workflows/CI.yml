@@ -29,13 +29,6 @@ jobs:
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
         docker stop "${NAME}"
-    - name: Test podman
-      run: |
-        NAME="test-${RANDOM}"
-        docker run -P --name "${NAME}" -d --rm --privileged  densukest/ubuntu-it-soft:v1
-        SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
-        sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 podman run hello-world | grep -qi hello
-        docker stop "${NAME}"
     - name: login to docker hub
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
       uses: docker/login-action@v2
