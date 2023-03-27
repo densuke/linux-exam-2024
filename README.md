@@ -63,3 +63,8 @@ Linuxへの接続は以下の条件での接続となります。
 
 で接続できます、初回接続時はホスト鍵の確認が出るので、`yes`を入れてください。
 
+# イメージの自動ビルドについて
+
+mainブランチが更新されると、テスト後にイメージ作成・更新フェイズが動くようになっています。
+
+[![Docker Image CI](https://github.com/densuke-st/linux-vm-docker/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/densuke-st/linux-vm-docker/actions/workflows/CI.yml)
