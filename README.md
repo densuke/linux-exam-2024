@@ -63,7 +63,6 @@ Linuxへの接続は以下の条件での接続となります。
 
 で接続できます、初回接続時はホスト鍵の確認が出るので、`yes`を入れてください。
 
-
 # `ssh` コマンドで入りやすくする
 
 `~/.ssh/config` でエントリを作成すると、`ssh` コマンドでの接続が楽になります。
@@ -93,3 +92,9 @@ Last login: Tue Mar 28 20:16:58 2023 from 172.23.0.1
 
 公開鍵の登録ができればもう一段落できますが、自分で調べましょう。
 仕事で使うときは公開鍵ログインが基本となることでしょう…
+
+# イメージの自動ビルドについて
+
+本リポジトリのmainブランチが更新されると、テスト後にイメージ作成・更新フェイズが動くようになっています。
+
+[![Docker Image CI](https://github.com/densuke-st/linux-vm-docker/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/densuke-st/linux-vm-docker/actions/workflows/CI.yml)
