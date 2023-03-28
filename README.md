@@ -26,13 +26,13 @@ WindowsでもmacOSでも、Docker(Docker Desktop等)が必要です。
 
 ## macOS(および linux)の方向けセットアップ
 
-`%`はプロンプト文字列です。
-
 ```zsh
-% cp tools/unix/* .
-% chmod +x linux-*
-% ./linux-setup
+% sudo make install # スクリプトと設定ファイルをシステム内に配置
 ```
+
+設定とスクリプトは `/usr/local/lib/linuxvm-docker` に配置され、スクリプトはさらに `/usr/local/bin` にシンボリックリンクで配置されます。
+
+不要になったときは、 `sudo make uninstall` でアンインストールできます(最悪上記リンクと`/usr/local/lib/linuxvm-docker`を消せばOK)
 
 ## 起動方法
 
