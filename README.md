@@ -63,3 +63,33 @@ Linuxへの接続は以下の条件での接続となります。
 
 で接続できます、初回接続時はホスト鍵の確認が出るので、`yes`を入れてください。
 
+
+# `ssh` コマンドで入りやすくする
+
+`~/.ssh/config` でエントリを作成すると、`ssh` コマンドでの接続が楽になります。
+
+```
+Host ls #linuxstudy
+        HostName 127.0.0.1
+        Port 2022
+        User linux
+        StrictHostKeyChecking no
+        UserKnownHostsFile /dev/null
+```
+
+これで接続名 `ls` でパスワードを入れるだけで入れます。
+
+```zsh
+% ssh ls
+Warning: Permanently added '[localhost]:2022' (ED25519) to the list of known hosts.
+linux@localhost's password: #ここでパスワード入力
+Welcome to Ubuntu 22.04.2 LTS (GNU/Linux 5.15.49-linuxkit x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+Last login: Tue Mar 28 20:16:58 2023 from 172.23.0.1
+```
+
+公開鍵の登録ができればもう一段落できますが、自分で調べましょう。
+仕事で使うときは公開鍵ログインが基本となることでしょう…
