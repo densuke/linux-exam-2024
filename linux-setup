@@ -1,6 +1,12 @@
 #!/bin/bash
 
-cd $(dirname $0)
+if [ -L $0 ]; then
+    L=$(readlink $0)
+    O=$(dirname $L)
+    cd $O
+else
+    cd $(dirname $0)
+fi
 . config
 
 ${CMD} inspect --type=volume ${VOL} >& /dev/null
