@@ -1,4 +1,5 @@
 @echo off
 cd /d %~dp0
-wsl bash ./linux-reset %%1
+wsl --set-default docker-desktop > nul
+wsl bash ./linux-reset %1
 
