@@ -10,7 +10,8 @@ ARG DEBIAN_FRONTEND=${DEBCONF_FRONTEND}
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
     apt-get update; \
-    apt-get install -y tzdata
+    apt-get install -y tzdata; \
+    ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime; dpkg-reconfigure tzdata
 # ロケール設定
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
