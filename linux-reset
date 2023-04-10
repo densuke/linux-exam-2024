@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -L $0 ]; then
     L=$(readlink $0)
