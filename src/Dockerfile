@@ -13,6 +13,7 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
     apt-get install -y tzdata; \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime; dpkg-reconfigure tzdata
 # ロケール設定
+COPY locale-ja.sh /etc/profile.d/
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
     apt-get update; \
