@@ -16,6 +16,6 @@ if [ ! $? = 0 ]; then
     ${CMD} volume create "${VOL}"
 fi
 
-${CMD} compose create --pull always
+${CMD} compose create --pull missing
 echo "OK: use command 'docker compose up -d' or script linux-start"
 
