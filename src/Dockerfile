@@ -56,7 +56,7 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
     apt-get update; \
-    apt-get install -y vim cowsay
+    apt-get install -y vim cowsay sl
 # 鬼教官モードのファイル設定
 COPY vimrc.local /etc/vim/
 RUN chmod 0644 /etc/vim/vimrc.local
