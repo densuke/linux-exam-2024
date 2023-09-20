@@ -13,21 +13,29 @@ jobs:
   build_job:
     name: Build
     runs-on: ubuntu-latest
+    # env:
+    #   TESTIMAGE: test-${{ github.run_id }}-${{ github.run_number }}
     steps:
     - uses: actions/checkout@v3
+    - name: Set random image name
+      run: |
+        echo "TESTIMAGE=testimage-${RANDOM}:${RANDOM}" > $GITHUB_ENV
     - name: Build the Docker image
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
         grep -q '/main$' <<< "${{ github.ref }}" && BUILD_ARG="${BUILD_ARG} --no-cache"
         docker buildx create --use --name builder
-        docker buildx build --platform=linux/amd64 --load -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
+        docker buildx build --load -t ${TESTIMAGE} ${BUILD_ARG}  src
     - name: Test connection
       run: |
         NAME="test-${RANDOM}"
-        docker run -P --name "${NAME}" -d --rm --privileged  densukest/ubuntu-it-soft:v1
+        docker run -P --name "${NAME}" -d --rm --privileged  ${TESTIMAGE}
         SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
+        # test for localed time
+        sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 \
+          bash -ec "test -f /etc/profile.d/locale-ja.sh; source /etc/profile.d/locale-ja.sh; date" | egrep '年'
         docker stop "${NAME}"
     - name: login to docker hub
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
@@ -40,3 +48,5 @@ jobs:
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
         docker buildx build --platform=linux/amd64,linux/arm64 --push -t densukest/ubuntu-it-soft:v1 ${BUILD_ARG}  src
+    - name: cleanup image
+      run: docker image rm ${TESTIMAGE}

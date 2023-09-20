@@ -1,6 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
-cd $(dirname $0)
+if [ -L $0 ]; then
+    L=$(readlink $0)
+    O=$(dirname $L)
+    cd $O
+else
+    cd $(dirname $0)
+fi
 . config
 
 while getopts a OPT; do

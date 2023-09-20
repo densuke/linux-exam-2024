@@ -1,3 +1,4 @@
 @echo off
 cd /d %~dp0
-wsl bash ./linux-setup
+wsl --set-default docker-desktop > nul
+wsl ./linux-setup
