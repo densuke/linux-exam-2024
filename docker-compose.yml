@@ -2,7 +2,7 @@ version: '3'
 
 services:
   linux:
-    image: densukest/ubuntu-it-soft:v1
+    image: densukest/ubuntu-it-soft:v2
     privileged: true
     ports:
       - 2022:22
@@ -13,4 +13,3 @@ services:
 
 volumes:
   ubuntu-home:
-    external: true
