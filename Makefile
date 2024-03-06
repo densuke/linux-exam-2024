@@ -1,4 +1,4 @@
-IMAGE=densukest/ubuntu-it-soft:v1
+IMAGE=densukest/ubuntu-it-soft:v2
 PASSWORD=penguin
 DESTDIR=/usr/local/lib/linuxvm-docker
 LINK=/usr/local/bin

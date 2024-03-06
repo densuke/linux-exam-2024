@@ -70,6 +70,14 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
 # ホスト名
 #RUN echo sl > /etc/hostname
 
+# DB技術環境ツール(skr)
+COPY skr /usr/local/bin/
+RUN chmod +x /usr/local/bin/skr
+
+# 教科書のサンプルコード(skel経由でlinuxのホームへ)
+RUN cd /etc/skel && \
+    curl -sL https://ozuma.sakura.ne.jp/linux/sample.tar.gz | tar xz
+
 # その他(あとで上に集約するかも)
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
