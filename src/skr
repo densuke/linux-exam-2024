@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGE=docker.io/densukest/skrsql:v3
+IMAGE=docker.io/densukest/skrsql:v4
 SVNAME=skrsql
 USER=sql
 
@@ -27,7 +27,7 @@ status)
     else
         R="not running"
     fi
-    echo "SVNAME server is ${R}"
+    echo "${SVNAME} server is ${R}"
     exit ${RC}
     ;;
 stop)
