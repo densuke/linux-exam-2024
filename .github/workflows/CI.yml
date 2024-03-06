@@ -39,7 +39,6 @@ jobs:
         docker stop "${NAME}"
     - name: Test skr
       run: |
-          NAME="test-${RANDOM}"
           docker run --rm ${TESTIMAGE} sh -c 'test -x /usr/local/bin/skr'
     - name: login to docker hub
       if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
