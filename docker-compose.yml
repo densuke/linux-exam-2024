@@ -13,3 +13,4 @@ services:
 
 volumes:
   ubuntu-home:
+    external: true
