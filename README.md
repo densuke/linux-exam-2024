@@ -15,35 +15,66 @@ WindowsでもmacOSでも、Docker(Docker Desktop等)が必要です。
 
 続いて、本リポジトリをクローンした後、以下の手順でセットアップをしてください。
 
-## Windowsの方向けセットアップ
+## セットアップ
+
+Linux/macOS/Windows共通です。
+
+展開したディレクトリでプロンプトを開いてください(PowerShellでもbash/zshいずれでも大丈夫)。
+その後、以下のコマンド2つを入力してください。
 
 `>` はプロンプト文字列です。
 
 ```cmd
-> copy tools\windows\*.bat .
-> linux-setup
+> docker volume create ubuntu-home
+> docker compose create
 ```
 
-## macOS(および linux)の方向けセットアップ
+```{note}
+何をしているのかですが、
 
-```zsh
-% sudo make install # スクリプトと設定ファイルをシステム内に配置
+1.  ```
+    > docker volume create ubuntu-home
+    ```
+    Linux環境で利用する個人用データの記憶域(ボリューム)を生成しています。
+2.  ```
+    > docker compose create
+    ```
+    授業用のLinux環境を構築しています。
 ```
 
-設定とスクリプトは `/usr/local/lib/linuxvm-docker` に配置され、スクリプトはさらに `/usr/local/bin` にシンボリックリンクで配置されます。
+これが完了すると、Docker Desktopのダッシュボードの "containers" タブにて、生成された環境が確認できます。
 
-不要になったときは、 `sudo make uninstall` でアンインストールできます(最悪上記リンクと`/usr/local/lib/linuxvm-docker`を消せばOK)
+![](/images/containers.png)
+
+
 
 ## 起動方法
 
-Linuxの環境を起動させるには、このディレクトリにて端末を開き、
+起動方法は2つあります、ほとんどの方は前者(GUI)のほうが楽だと思うので、そちらで試してください。
 
-```
-> linux-start  # Windowsの場合(コマンドプロンプト、PowerShell)
-% ./linux-start # macOS/Linuxの環境を起動させるには
+### GUIベースの起動
+
+Docker Desktopのダッシュボードを開き、該当するLinux環境右側にある起動 `▶` ボタンをクリックしてください。
+2カ所ありますが、(上側が推奨ですが)どちらでもかまいません。
+クリックすると `■` ボタンに切り替わります(停止用ボタン、めったに使いませんが)
+
+![](/images/gui-up.png)
+
+![](/images/gui-stop.png)
+
+```{warning}
+さらに右側にあるゴミ箱ボタンでコンテナの削除もできますが、環境リセット用途意外では使いません。うっかり触ってもキャンセルするようにしてください。
 ```
 
-で起動します。
+### CLI(コマンドライン)ベースでの起動
+
+`docker-compose.yml` ファイルのあるディレクトリに移動して、
+
+```cmd
+> docker compose up -d
+```
+
+すると起動します(ダッシュボード側でも確認できる)。
 
 ## 接続方法
 
@@ -54,6 +85,16 @@ Linuxへの接続は以下の条件での接続となります。
 - 接続ポート: 2022
     - もしかすると22/tcpがホスト側のsshで使っている可能性があるため
 
+### 端末ツールによる接続
+
+* RLogin
+* Putty
+
+など、端末アプリケーションを用いることで接続できます、接続時のパラメータについては、上記データを参考に設定してみてください。
+授業時に配布するRLoginでは、設定込みになっているため、実行するだけで接続先として選べるようにしてあります。
+
+### `ssh`による接続
+
 `ssh`コマンド(WindowsでもmacOSでも標準で入ってます)を使うのであれば、
 
 ```
@@ -63,7 +104,7 @@ Linuxへの接続は以下の条件での接続となります。
 
 で接続できます、初回接続時はホスト鍵の確認が出るので、`yes`を入れてください。
 
-# `ssh` コマンドで入りやすくする
+### おまけ: `ssh` コマンドで入りやすくする
 
 `~/.ssh/config` でエントリを作成すると、`ssh` コマンドでの接続が楽になります。
 
