@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 ARG USER=linux
 ARG PASSWORD
 ENV TZ Asia/Tokyo
@@ -50,7 +50,7 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
     apt-get update; \
-    apt-get install -y mlocate man man-db
+    apt-get install -y locate man man-db
 
 # Chap.7
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
