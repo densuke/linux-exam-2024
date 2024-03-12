@@ -44,7 +44,7 @@ Linux/macOS/Windows共通です。
 
 これが完了すると、Docker Desktopのダッシュボードの "containers" タブにて、生成された環境が確認できます。
 
-![](/images/containers.png)
+![](/assets/images/containers.png)
 
 
 
@@ -58,9 +58,9 @@ Docker Desktopのダッシュボードを開き、該当するLinux環境右側�
 2カ所ありますが、(上側が推奨ですが)どちらでもかまいません。
 クリックすると `■` ボタンに切り替わります(停止用ボタン、めったに使いませんが)
 
-![](/images/gui-up.png)
+![](/assets/images/gui-up.png)
 
-![](/images/gui-stop.png)
+![](/assets/images/gui-stop.png)
 
 ```{warning}
 さらに右側にあるゴミ箱ボタンでコンテナの削除もできますが、環境リセット用途意外では使いません。うっかり触ってもキャンセルするようにしてください。
