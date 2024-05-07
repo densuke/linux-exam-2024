@@ -12,8 +12,8 @@ on:
 jobs:
   build_job:
     name: Build
-    #runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    #runs-on: self-hosted
     # env:
     #   TESTIMAGE: test-${{ github.run_id }}-${{ github.run_number }}
     steps:
