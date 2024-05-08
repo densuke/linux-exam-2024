@@ -12,8 +12,8 @@ on:
 jobs:
   build_job:
     name: Build
-    #runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    #runs-on: self-hosted
     # env:
     #   TESTIMAGE: test-${{ github.run_id }}-${{ github.run_number }}
     steps:
@@ -21,6 +21,7 @@ jobs:
     - name: Set random image name
       run: |
         echo "TESTIMAGE=testimage-${RANDOM}:${RANDOM}" > $GITHUB_ENV
+        echo "NAME=test-${RANDOM}" >> $GITHUB_ENV
     - name: Build the Docker image
       run: |
         BUILD_ARG="--build-arg PASSWORD=penguin"
@@ -29,15 +30,21 @@ jobs:
         docker buildx build --load -t ${TESTIMAGE} ${BUILD_ARG}  src
     - name: Test connection
       run: |
-        NAME="test-${RANDOM}"
+        #NAME="test-${RANDOM}"
         docker run -P --name "${NAME}" -d --rm --privileged  ${TESTIMAGE}
         SSHPORT=$(docker container ps -f "name=${NAME}" | egrep -o '0.0.0.0:[0-9]+->22/tcp' | sed -r -e 's;.*:([0-9]+)->.*;\1;')
+        echo "SSHPORT=${SSHPORT}" >> $GITHUB_ENV
         sudo apt-get update; sudo apt-get install -y sshpass
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 uname -a
         # test for localed time
         sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 \
           bash -ec "test -f /etc/profile.d/locale-ja.sh; source /etc/profile.d/locale-ja.sh; date" | egrep '年'
-        docker stop "${NAME}"
+    - name: Test /etc/crontab
+      run: |
+        sshpass -p penguin ssh -p ${SSHPORT} -o StrictHostKeyChecking=false linux@127.0.0.1 \
+        test -f /etc/crontab
+    - name: Stop the container
+      run: docker stop ${NAME}
     #- name: Test skr
     #  run: |
     #      docker run --rm ${TESTIMAGE} sh -c 'test -x /usr/local/bin/skr'
