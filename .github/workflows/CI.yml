@@ -1,13 +1,19 @@
-name: Docker Image CI(main)
+name: イメージ生成ができるかのCI
 
 on:
   push:
-    branches: [ "ci", "main", "features/*" ]
+    branches:
+      - "ci"
+      - "main"
+      - "dev"
+      - "feature/*"
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: "0 12 * * 0"
   workflow_dispatch:
+
+# env:
+#   REGISTRY: ghcr.io
+#   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build_job:
@@ -45,19 +51,51 @@ jobs:
         test -f /etc/crontab
     - name: Stop the container
       run: docker stop ${NAME}
-    #- name: Test skr
-    #  run: |
-    #      docker run --rm ${TESTIMAGE} sh -c 'test -x /usr/local/bin/skr'
-    - name: login to docker hub
-      if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_AUTH }}
-    - name: rebuild and push
-      if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
-      run: |
-        BUILD_ARG="--build-arg PASSWORD=penguin"
-        docker buildx build --platform=linux/amd64,linux/arm64 --push -t densukest/ubuntu-it-soft:v3 ${BUILD_ARG}  src
+    # - name: Log in to the Container registry
+    #   #if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
+    #   uses: docker/login-action@v3
+    #   with:
+    #     registry: ${{ env.REGISTRY }}
+    #     username: ${{ github.actor }}
+    #     password: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Extract metadata (tags, labels) for Docker
+    #   id: meta
+    #   #if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
+    #   uses: docker/metadata-action@v4
+    #   with:
+    #       images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+    # - name: Set up Docker Buildx
+    #   #if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
+    #   uses: docker/setup-buildx-action@v3
+    # - name: create tag name
+    #     # v3.1.4のようなタグ名のついたコミットに対しては、以下のタグをDockerイメージに付与できるように準備しておく
+    #     # - v3.1.4
+    #     # - v3.1
+    #     # - v3
+    #     # この処理は該当するタグがついていないときはスキップする
+    #   if: ${{ github.event_name == 'push' }} &&
+    #   run: |
+    #     TAGS=$(git tag --points-at ${{ github.sha }})
+    #     if [ -n "${TAGS}" ]; then
+    #       TAGS=$(echo "${TAGS}" | sed -e 's/\./ /g')
+    #       TAGS=$(echo "${TAGS}" | sed -e 's/ /:/g')
+    #       echo "TAGS=${TAGS}" >> $GITHUB_ENV
+    #     fi
+
+    # - name: Build and push Docker image
+    #   #if: ${{ endsWith(github.ref, '/main') && github.event_name != 'pull_request' }}
+    #   uses: docker/build-push-action@v4
+    #   with:
+    #     context: src
+    #     push: true
+    #     tags: |
+    #       ${{ steps.meta.outputs.tags }}
+    #       ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+    #     labels: ${{ steps.meta.outputs.labels }}
+    #     build-args: |
+    #       PASSWORD=penguin
+    #     platforms: linux/amd64
+    #     #platforms: linux/amd64,linux/arm64
+    #     provenance: false
     - name: cleanup image
       run: docker image rm ${TESTIMAGE}
