@@ -1,4 +1,4 @@
-name: リリース工程
+name: リリース工程(バージョンタグ打ち)
 
 on:
   workflow_run:
@@ -8,7 +8,6 @@ on:
   push:
     # branches:
       # - "ci"
-      # - "main"
       # - "dev"
       # - "feature/*"
     tags:
@@ -75,10 +74,6 @@ jobs:
       with:
         context: src
         push: true
-        # タグをちょっと抜いて挙動をチェック
-        # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR_VERSION }}
-        # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MINOR_VERSION }}
-        # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
         tags: |
           ${{ steps.meta.outputs.tags }}
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
