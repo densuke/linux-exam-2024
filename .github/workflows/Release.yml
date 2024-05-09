@@ -52,7 +52,7 @@ jobs:
         echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
     - name: ビルド作業
       #uses: ./.github/actions/Image-builder
-      uses: densuke/image-build@v1
+      uses: densuke/image-build@v1.0.1
       with:
         REGISTRY: ${{ env.REGISTRY }}
         IMAGE_NAME: ${{ env.IMAGE_NAME }}
