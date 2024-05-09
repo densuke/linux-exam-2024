@@ -6,11 +6,11 @@ on:
     types:
       - completed
   push:
-    # branches:
-    #   - "ci"
-    #   - "main"
-    #   - "dev"
-    #   - "feature/*"
+    branches:
+      # - "ci"
+      # - "main"
+      # - "dev"
+      - "feature/*"
     tags:
       - "v*.*.*"
   # pull_request:
