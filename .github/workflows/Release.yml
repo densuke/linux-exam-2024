@@ -74,12 +74,13 @@ jobs:
       with:
         context: src
         push: true
-        tags: |
-          ${{ steps.meta.outputs.tags }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        # タグをちょっと抜いて挙動をチェック
         # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR_VERSION }}
         # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MINOR_VERSION }}
         # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+        tags: |
+          ${{ steps.meta.outputs.tags }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
           PASSWORD=penguin
