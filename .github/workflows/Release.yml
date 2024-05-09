@@ -77,9 +77,9 @@ jobs:
         tags: |
           ${{ steps.meta.outputs.tags }}
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR_VERSION }}
-          # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MINOR_VERSION }}
-          # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+        # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR_VERSION }}
+        # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MINOR_VERSION }}
+        # ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
           PASSWORD=penguin
