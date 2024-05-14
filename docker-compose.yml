@@ -2,7 +2,7 @@ version: '3'
 
 services:
   linux:
-    image: ghcr.io/densuke-st/linux-vm-docker:v3
+    image: ghcr.io/densuke-st/linux-vm-docker:3
     privileged: true
     ports:
       - 2022:22
