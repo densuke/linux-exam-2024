@@ -86,6 +86,22 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
 RUN echo 'session     required      pam_mkhomedir.so skel=/etc/skel umask=0022' >> /etc/pam.d/common-session
 # apt使用時のキャッシュデータクリア(Dockerビルド向け)を外す
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
+# podman対策(skr)
+RUN echo "sql:0:100000" >> /etc/subuid; echo "sql:0:100000" >> /etc/subgid
+COPY run-skr-setup.sh /etc/profile.d/run-skr-setup.sh
+COPY skr-setup.sh /usr/local/bin/skr-setup.sh
+RUN chmod +x /usr/local/bin/skr-setup.sh
+COPY user /etc/skel/.config/systemd/user
+# 後で起動した人向け
+COPY user/skr-setup.service /usr/local/etc/skr-setup.service
+COPY run-skr-setup.sh /usr/local/etc/run-skr-setup.sh
+RUN cd /etc/skel/.config/systemd/user && \
+        mkdir default.target.wants && \
+        cd default.target.wants && \
+        ln -s ../skr-setup.service .
+
+# デフォルトのモードをmulti-user.targetに変更
+RUN ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 
 # 授業上使いそうなポート開放
 # http/https

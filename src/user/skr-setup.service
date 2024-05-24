@@ -1,0 +1,10 @@
+[Unit]
+Description=skrsql image check and pull
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/skr-setup.sh
+TimeoutSec=90
+
+[Install]
+WantedBy=default.target

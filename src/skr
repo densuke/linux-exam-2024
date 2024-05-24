@@ -3,10 +3,40 @@ IMAGE=docker.io/densukest/skrsql:v4
 SVNAME=skrsql
 USER=sql
 
+systemd_setup() {
+    local UNIT=skr-setup.service
+    local SCRIPT=/usr/local/etc/${UNIT}
+    local SDUNIT=$HOME/.config/systemd/user/${UNIT}
+
+    if [ -f ${SDUNIT} ]; then
+        return 0
+    fi
+
+    echo "システム設定の一部を更新する必要があります"
+    echo "ログイン時に使用したパスワードを求めてくることがあるので、その場合は入力してください"
+    echo "(5秒待っています)"
+    sleep 5
+
+    mkdir -p $(dirname ${SDUNIT})
+    install -m 0644 -T ${SCRIPT} ${SDUNIT}
+    systemctl --user enable ${UNIT}
+
+    sudo install -m 0755 -o root -g root \
+        /usr/local/etc/run-skr-setup.sh /etc/profile.d/
+
+}
+
 check_running() {
-    test $(podman container ps -a -f "status=running,name=$SVNAME" | wc -l) -gt 1
+    test $(podman container ps -a --filter "status=running" --filter="name=$SVNAME" | wc -l) -gt 1
     return $?
 }
+
+check_image() {
+    test $(podman image ls -q $IMAGE | wc -l) -gt 0
+    return $?
+}
+
+systemd_setup
 
 case "$1" in
 start)
@@ -16,6 +46,7 @@ start)
     else
         # 稼働中の場合は除外しているので、非稼働コンテナでのチェックのみでOK
         test $(podman container ps -a -f "name=$SVNAME" | wc -l) -gt 1 && podman container rm $SVNAME
+        check_image || podman image pull ${IMAGE}
         podman run --name $SVNAME --rm -d "$IMAGE"
     fi
     ;;
@@ -37,6 +68,10 @@ stop)
     fi
     echo "stopping server..."
     podman stop $SVNAME
+    ;;
+update)
+    echo "updating image..."
+    podman image pull ${IMAGE}
     ;;
 list|can|q|drill)
     if ! check_running; then
