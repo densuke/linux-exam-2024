@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  linux:
+    build:
+      context: src
+      args:
+        - PASSWORD=penguin
+
+    privileged: true
+    ports:
+      - 2022:22
+      - 8080:80
+      - 3306:3306
+    volumes:
+      - ubuntu-testing:/home
+
+volumes:
+  ubuntu-testing:

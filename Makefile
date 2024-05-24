@@ -1,4 +1,5 @@
-IMAGE=densukest/ubuntu-it-soft:v2
+#IMAGE=densukest/ubuntu-it-soft:v2
+IMAGE=ghcr.io/densuke-st/linux-vm-docker:3
 PASSWORD=penguin
 DESTDIR=/usr/local/lib/linuxvm-docker
 LINK=/usr/local/bin
@@ -30,3 +31,12 @@ uninstall:
 	done
 	rm -fr $(DESTDIR)
 
+test: build
+	@echo "after test, run 'make down' to stop the container	"
+	docker compose -f docker-compose.yml -f docker-compose_test.yml up -d
+
+down:
+	docker compose -f docker-compose.yml -f docker-compose_test.yml \
+		down -v --remove-orphans
+
+.PHONY: all build push clean install uninstall test down
