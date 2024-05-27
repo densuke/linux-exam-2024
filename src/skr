@@ -90,6 +90,7 @@ commands:
 - start: start DB server
 - stop: stop DB server
 - status: check whether DB server is running
+- update: update image
 - list/can/q/drill ARGS...: run tool in server
 EOM
     ;;
