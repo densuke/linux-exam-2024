@@ -16,7 +16,7 @@ expected_owner="linux"
 if [ "$owner" != "$expected_owner" ]; then
   logger -t "check-owned-liux" "modify ownership"
 
-  chown -R "$expected_owner" "$target_dir"
+  chown -R "${expected_owner}:${expected_owner}" "$target_dir"
 fi
 logger -t "check-owned-liux" "finished"
 
