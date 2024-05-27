@@ -99,6 +99,11 @@ RUN cd /etc/skel/.config/systemd/user && \
         mkdir default.target.wants && \
         cd default.target.wants && \
         ln -s ../skr-setup.service .
+COPY check_ownership.sh /usr/local/sbin/
+RUN chmod +x /usr/local/sbin/check_ownership.sh
+COPY check-owned-linux.service /etc/systemd/system/check-owned-linux.service
+# /etc/systemd/system/check-owned-linux.service が起動時に実行されるように設定
+RUN systemctl enable check-owned-linux.service
 
 # デフォルトのモードをmulti-user.targetに変更
 RUN ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target

@@ -1,0 +1,12 @@
+[Unit]
+description = "check owned by linux on dir /home/linux"
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/check_ownership.sh
+# 一度実行されたら、以降は自動起動しないように変更する
+ExecStartPost=/bin/systemctl disable check-owned-linux.service
+
+
+[Install]
+WantedBy=multi-user.target
