@@ -34,13 +34,23 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
     apt-get install -y git psmisc tree xz-utils bzip2 zip unzip podman curl; \
     apt-get upgrade --auto-remove --purge -y
 
-# ユーザー作成(linux)
-RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
-    --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
-    useradd -s /bin/bash ${USER}; usermod -a -G sudo ${USER}; \
-    echo "${USER}:${PASSWORD}" | chpasswd; \
-    cat /etc/passwd
-# Chap.4
+# # ユーザー作成(linux)
+# RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
+#     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
+#     useradd -s /bin/bash ${USER}; usermod -a -G sudo ${USER}; \
+#     echo "${USER}:${PASSWORD}" | chpasswd; \
+#     cat /etc/passwd#
+# ↑ 特に支障がなさそうなら、2024/08/31以降にこのコメント部分は削除します
+
+# ユーザー作成(linux) -- ubuntu:24.04ではubuntuユーザーがあるので、
+# ubuntuユーザーをlinuxユーザーに名前を変更、ホームディレクトリの場所も変更
+RUN usermod -l linux -d /home/linux -m ubuntu; \
+    groupmod -n linux ubuntu; \
+    usermod -a -G sudo linux; \
+    echo "linux:${PASSWORD}" | chpasswd; \
+    sed -i -e 's;ubuntu;linux;g' /etc/subuid /etc/subgid
+
+    # Chap.4
 RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
     --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/var/tmp \
     apt-get update; \
@@ -104,7 +114,6 @@ RUN chmod +x /usr/local/sbin/check_ownership.sh
 COPY check-owned-linux.service /etc/systemd/system/check-owned-linux.service
 # /etc/systemd/system/check-owned-linux.service が起動時に実行されるように設定
 RUN systemctl enable check-owned-linux.service
-
 # デフォルトのモードをmulti-user.targetに変更
 RUN ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 
