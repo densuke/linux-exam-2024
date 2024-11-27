@@ -13,9 +13,6 @@ on:
   # pull_request:
   #   branches: [ "main" ]
   workflow_dispatch:
-  # 毎週日曜日の日本時間の午前3時に実行する
-  schedule:
-    - cron: '0 18 * * 0'
 
 env:
   REGISTRY: ghcr.io
@@ -26,13 +23,56 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: ビルド作業
-      uses: densuke/image-build@v1.0.1
-      with:
-        REGISTRY: ${{ env.REGISTRY }}
-        IMAGE_NAME: ${{ env.IMAGE_NAME }}
-        REPO_USER: ${{ secrets.REPO_USER }}
-        REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-        TAGS: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      # actで実行しているときはプッシュしないため、変数PUSH_GHCRにfalseを設定する
+      - name: Set PUSH_GHCR
+        id: PUSH_GHCR
+        run: |
+          RESULT=true
+          if [ "x${ACT}" != "x" ]; then
+            echo "ローカル実行のためpushしません"
+            RESULT=false
+          fi
+      - uses: actions/checkout@v4
+      # ディレクトリimmages以下からDockerイメージをビルドする
+      # - プッシュ先はghcr上
+      # - イメージ名は linux-exam-2024
+      # - タグは日時をエポック秒にしたものを付与し、ついでにlatestタグも付与する
+      # - amd64およびarm64のイメージをビルドする(マルチアーキテクチャ)
+      # - ビルドの際はDockerが提供するactionsを用ること
+      - uses: docker/login-action@v3
+        if: ${{ steps.PUSH_GHCR.outputs.PUSH_GHCR == 'true' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # マルチアーキテクチャビルドの準備
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      # マルチアーキテクチャビルドの準備
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # マルチアーキテクチャビルド
+      - name: マルチアーキテクチャビルド
+        uses: docker/build-push-action@v2
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          # platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: |
+            ghcr.io/densuke/linux-exam-2024:latest
+            ghcr.io/densuke/linux-exam-2024:${{ github.run_number }}
+      - name: イメージ送信
+        uses: docker/build-push-action@v2
+        if: ${{ steps.PUSH_GHCR.outputs.PUSH_GHCR == 'true' }}
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          # platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/densuke/linux-exam-2024:latest
+            ghcr.io/densuke/linux-exam-2024:${{ github.run_number }}
